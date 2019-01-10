@@ -1,20 +1,28 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+
+from KernelPCA import DataTransformation
 from Toy_Dataset_Generator import toy_dataset
 import Utils
 
 
 class PPCA(object):
-    def __init__(self, latent_dimensions=2, sigma=1, max_iterations=20):
+    def __init__(self, latent_dimensions=2, sigma=1, max_iterations=20, kernel="linear"):
 
         self.Latent = latent_dimensions  # hidden dimensions
         self.sigma = sigma  # std of the noise
         self.max_iterations = max_iterations  # maximum iterations to do
         self.mean = None
         self.W = None  # W = projection matrix DxL
-    # skejfisudhfiu
+        self.kernel = kernel
+
     def _fit(self, data):
+
+        if self.kernel != "linear":
+            kernel_transformation = DataTransformation(kernel=self.kernel)
+            data = kernel_transformation.transform_data(data)
+
         self.data = data  # our original data
         self.mean = np.mean(self.data, axis=0)  # mean of the model
 
@@ -33,7 +41,7 @@ class PPCA(object):
         W = np.random.rand(dim, latent)
 
         for i in range(self.max_iterations):
-            print("Perform Expectation Maximazation Step Iteration={}".format(i+1))
+            print("Perform Expectation Maximazation Step Iteration={}".format(i + 1))
             # Expectation Step
             M = np.linalg.inv(W.T.dot(W) + sigma * np.identity(latent))
             Xn = M.dot(np.transpose(W)).dot((data - mean).T)
@@ -73,7 +81,6 @@ class PPCA(object):
     #     self.W = w
     #     print(w.shape)
     #     self.sigma = sigma
-
 
     def _transform_data(self, data):
 
