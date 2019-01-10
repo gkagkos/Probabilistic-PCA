@@ -5,7 +5,9 @@ import random
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, FactorAnalysis
+from sklearn.model_selection import cross_val_score
+from PCA import *
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 cifar10_dir = os.path.join(ROOT_DIR, 'data/CIFAR10/')  # Directory of the cifar dataset
@@ -25,8 +27,26 @@ latent = 10  # latent dimensionality
 max_iterations = 2  # number of maximum iterations
 
 cifar = False
-mnist = True
-multivariate = False
+mnist = False
+multivariate = True
+
+
+def compute_scores(X, n_features):
+    n_components = np.arange(0, n_features, 5)  # options for n_components
+    pca = PCA(svd_solver='full')
+    fa = FactorAnalysis()
+
+    pca_scores, fa_scores = [], []
+    for n in n_components:
+        pca.n_components = n
+        fa.n_components = n
+        pca_scores.append(np.mean(cross_val_score(pca, X, cv=5)))
+        fa_scores.append(np.mean(cross_val_score(fa, X, cv=5)))
+        print("Number of component", n)
+    n_components_pca = n_components[np.argmax(pca_scores)]
+    n_components_fa = n_components[np.argmax(fa_scores)]
+
+    return [n_components_fa, n_components_pca]
 
 
 def calculate_for_Cifar(num_pics_to_load):
@@ -39,6 +59,7 @@ def calculate_for_Cifar(num_pics_to_load):
     X_train = X_train[:num_pics_to_load, :]  # take only the first num_pics pictures
 
     print(X_train.shape)
+
     ppca = PPCA(latent_dimensions=latent, max_iterations=max_iterations)
 
     print("=======>Training Phase<=======")
@@ -88,48 +109,46 @@ def calculate_for_Cifar(num_pics_to_load):
 
 def calculate_for_Mnist(num_pics_to_load):
     X_train, y_train, X_test, y_test = toy_dataset()._load_MNIST(mnist_dir)
-
     X_train = np.reshape(X_train, (X_train.shape[0], -1))
     X_test = np.reshape(X_test, (X_test.shape[0], -1))
     X_train = X_train[:num_pics_to_load, :]  # take only the first num_pics pictures
 
-    ppca = PPCA(latent_dimensions=latent, max_iterations=max_iterations)
+    # THIS IS FROM THE FILE THE OTHER GUY MADE TO FIND THE LATEND DIMENSION USING PCA
+    # IT IS NOT WORKING ON MNIST
+    # pca1 = PCA()
+    # data_std = pca1.fit(X_train)
+    # data_reduced = pca1.transform_data(data_std, None)
+    # data_reconstructed = pca1.inverse_transform(data_reduced, None)
+    # data_reconstructed = pca1.inverse_standarize(data_reconstructed)
+    # mult_pca_components = pca1.num_components
     #
-    # print("=======>Training Phase<=======")
-    # fitted_data = ppca._fit(X_train)
-    # reduced_data = ppca._transform_data(fitted_data)
-    # created_data = ppca._inverse_transform(reduced_data)
-    # error_train = get_relative_error(X_train, created_data, num_pics_to_load)
+    print("The number of components to be used is: ", mult_pca_components)
 
-    fitted_data_2 = PCA(n_components='mle',svd_solver='full')
-    fitted_data_2.fit(X_train)
-    components = fitted_data_2.n_components_
+    ppca = PPCA(latent_dimensions=latent, max_iterations=max_iterations)
 
-    # reduced_data_2 = PCA.transform(fitted_data_2)
-    # created_data_2 = PCA.inverse_transform(reduced_data_2)
-    # error_train_2 = get_relative_error(X_train, created_data_2, num_pics_to_load)
-
-
-
+    print("=======>Training Phase<=======")
+    fitted_data = ppca._fit(X_train)
+    reduced_data = ppca._transform_data(fitted_data)
+    created_data = ppca._inverse_transform(reduced_data)
+    error_train = get_relative_error(X_train, created_data, num_pics_to_load)
 
     plt.figure()
     plt.xlabel('Error(%)')
     plt.ylabel('Count')
     plt.title('Error of Reconstructing MNIST Train Set with PPCA(' + str(ppca.Latent) + " components)")
-    plt.hist(list(error_train_2), bins=100, color="#3F5D7D")  # fancy color
+    plt.hist(list(error_train), bins=100, color="#3F5D7D")  # fancy color
     plt.show()
 
     # # visualize a sample of reconstructed data images
     # created_data = np.reshape(created_data, (created_data.shape[0], 28, 28))
     #
     # # randomly select 5 images from 1 to num_pics_to_load
-    # rand_Images_idx = random.sample(range(num_pics_to_load), 5)
-    # for i,idx in enumerate(rand_Images_idx):
-    #     plt.figure()
-    #     plt.imshow(created_data[idx].astype('uint8'))
-    #     plt.xlabel("Actual Number {}".format(y_train[idx]))
-    #     plt.show()
-    #
+    rand_Images_idx = random.sample(range(num_pics_to_load), 5)
+    for i, idx in enumerate(rand_Images_idx):
+        plt.figure()
+        plt.imshow(created_data[idx].astype('uint8'))
+        plt.xlabel("Actual Number {}".format(y_train[idx]))
+        plt.show()
 
     print("=======>Testing Phase<=======")
     reduced_data = ppca._transform_data(X_test)
@@ -159,7 +178,26 @@ def calculate_for_Multivariate():
 
     X_train, X_test = toy_dataset()._build_A_toy_dataset(N=N, num_points=num_points)
     print(X_train.shape)
-    ppca = PPCA(latent_dimensions=latent, max_iterations=max_iterations)
+
+
+    # print("The number of components to be used is: {0} for fa and {1} for pca".format(fa_scores, pca_scores))
+    # THIS IS FROM THE FILE THE OTHER GUY MADE TO FIND THE LATEND DIMENSION USING PCA
+    # IT IS WORKING
+    pca1 = PCA()
+    data_std = pca1.fit(X_train)
+    data_reduced = pca1.transform_data(data_std, None)
+    data_reconstructed = pca1.inverse_transform(data_reduced, None)
+    data_reconstructed = pca1.inverse_standarize(data_reconstructed)
+    mult_pca_components = pca1.num_components
+
+
+    # THIS IS TO FIND THE LATEND VARIABLES USING THE PCA FROM SKLEARN
+    # pca = PCA(n_components='mle', svd_solver='full')
+    # pca.fit(X_train)
+    # components = pca.n_components_
+
+    print("The number of components to be used is: ", mult_pca_components)
+    ppca = PPCA(latent_dimensions=5, max_iterations=max_iterations)
 
     print("=======>Training Phase<=======")
     fitted_data = ppca._fit(X_train)
@@ -171,7 +209,7 @@ def calculate_for_Multivariate():
     r = range(0, percentage)
     error = get_relative_error(X_train, created_data, percentage + 1)  # +1 cuz it is fucking annoying :)
     # print(percentage, error.shape)
-
+    print("The training avg error of the dataset is: {0}".format(np.mean(error)))
     plt.bar(r, error, width=1, color="blue")
     plt.xlabel('Data Points')
     plt.ylabel('Error')
@@ -186,6 +224,7 @@ def calculate_for_Multivariate():
 
     error = get_relative_error(X_test, created_data, percentage + 1)  # + 1 cuz it is fucking annoying :)
     r = range(0, percentage)
+    print("The testing avg error of the dataset is: {0}".format(np.mean(error)))
 
     plt.bar(r, error, width=1, color="blue")
     plt.xlabel('Data Points')
@@ -195,6 +234,7 @@ def calculate_for_Multivariate():
 
 
 if __name__ == '__main__':
+
     if cifar is True:
         # Do PPCA on CIFAR10 data set
         calculate_for_Cifar(num_pics_to_load=num_pics_CIFAR10)
@@ -204,4 +244,3 @@ if __name__ == '__main__':
     if multivariate is True:
         # Do PPCA on multivariate gaussian set
         calculate_for_Multivariate()
-

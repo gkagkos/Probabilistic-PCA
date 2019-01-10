@@ -176,4 +176,10 @@ class toy_dataset(object):
 
 
 if __name__ == '__main__':
+
+
+
     trainingImages, trainingLabels, testImages, testLabels = toy_dataset()._load_MNIST(mnist_dir)
+
+
+
