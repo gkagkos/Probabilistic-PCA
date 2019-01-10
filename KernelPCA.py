@@ -189,13 +189,8 @@ if __name__ == '__main__':
 
     kpca = DataTransformation(kernel="rbf",gamma=4)
 
-    X, y = make_moons(n_samples=100, random_state=123)
+    X, y = make_moons(n_samples=500, random_state=123)
 
-
-    a = [[1,2,3],[1,2,3]]
-    chi2sampler = AdditiveChi2Sampler(sample_steps=2)
-    chi2sampler.fit(a)
-    skle = chi2sampler.transform(a)
 
 
     X_pc = X

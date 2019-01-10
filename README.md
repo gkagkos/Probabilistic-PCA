@@ -1,5 +1,5 @@
 # Probabilistic-PCA
-# Authors: Polydefkis Gkagkos, , , 
+# Authors: Polydefkis Gkagkos, Leonidas Valavanis, Sasidhar Yalavarthi, Kai Ma
 
 Implementation of Probabilistic Principal Component Analysis.\
 About: An implementation of PPCA by following the paper of Michael E. Tipping and Christopher M. Bishop.\
