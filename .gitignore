@@ -108,3 +108,11 @@ venv.bak/
 .idea/PPCA.iml
 .idea/vcs.xml
 .idea/workspace.xml
+data/CIFAR10/batches.meta
+data/CIFAR10/data_batch_1
+data/CIFAR10/data_batch_2
+data/CIFAR10/data_batch_3
+data/CIFAR10/data_batch_4
+data/CIFAR10/data_batch_5
+data/CIFAR10/test_batch
+data/MNIST/train-images-idx3-ubyte
