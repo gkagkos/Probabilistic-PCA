@@ -13,7 +13,7 @@ class PPCA(object):
         self.max_iterations = max_iterations  # maximum iterations to do
         self.mean = None
         self.W = None  # W = projection matrix DxL
-
+    # skejfisudhfiu
     def _fit(self, data):
         self.data = data  # our original data
         self.mean = np.mean(self.data, axis=0)  # mean of the model

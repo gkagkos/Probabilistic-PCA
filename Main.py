@@ -5,6 +5,7 @@ import random
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.decomposition import PCA
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 cifar10_dir = os.path.join(ROOT_DIR, 'data/CIFAR10/')  # Directory of the cifar dataset
@@ -21,11 +22,11 @@ num_points = 10000  # number of data points
 N = 50  # data dimensionality MUST BE ALWAYS SMALLER THAN LATENT
 
 latent = 10  # latent dimensionality
-max_iterations = 20  # number of maximum iterations
+max_iterations = 2  # number of maximum iterations
 
-cifar = True
+cifar = False
 mnist = True
-multivariate = True
+multivariate = False
 
 
 def calculate_for_Cifar(num_pics_to_load):
@@ -93,18 +94,29 @@ def calculate_for_Mnist(num_pics_to_load):
     X_train = X_train[:num_pics_to_load, :]  # take only the first num_pics pictures
 
     ppca = PPCA(latent_dimensions=latent, max_iterations=max_iterations)
+    #
+    # print("=======>Training Phase<=======")
+    # fitted_data = ppca._fit(X_train)
+    # reduced_data = ppca._transform_data(fitted_data)
+    # created_data = ppca._inverse_transform(reduced_data)
+    # error_train = get_relative_error(X_train, created_data, num_pics_to_load)
 
-    print("=======>Training Phase<=======")
-    fitted_data = ppca._fit(X_train)
-    reduced_data = ppca._transform_data(fitted_data)
-    created_data = ppca._inverse_transform(reduced_data)
-    error_train = get_relative_error(X_train, created_data, num_pics_to_load)
+    fitted_data_2 = PCA(n_components='mle',svd_solver='full')
+    fitted_data_2.fit(X_train)
+    components = fitted_data_2.n_components_
+
+    # reduced_data_2 = PCA.transform(fitted_data_2)
+    # created_data_2 = PCA.inverse_transform(reduced_data_2)
+    # error_train_2 = get_relative_error(X_train, created_data_2, num_pics_to_load)
+
+
+
 
     plt.figure()
     plt.xlabel('Error(%)')
     plt.ylabel('Count')
     plt.title('Error of Reconstructing MNIST Train Set with PPCA(' + str(ppca.Latent) + " components)")
-    plt.hist(list(error_train), bins=100, color="#3F5D7D")  # fancy color
+    plt.hist(list(error_train_2), bins=100, color="#3F5D7D")  # fancy color
     plt.show()
 
     # # visualize a sample of reconstructed data images
@@ -192,3 +204,4 @@ if __name__ == '__main__':
     if multivariate is True:
         # Do PPCA on multivariate gaussian set
         calculate_for_Multivariate()
+
