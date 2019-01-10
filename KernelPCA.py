@@ -1,15 +1,8 @@
-import os
-
 from scipy.spatial.distance import pdist, squareform
 from scipy import exp
 from scipy.linalg import eigh
 import numpy as np
 
-from Toy_Dataset_Generator import toy_dataset
-
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
-
-mnist_dir = os.path.join(ROOT_DIR, 'data/MNIST/')
 
 class DataTransformation(object):
 
@@ -196,9 +189,11 @@ if __name__ == '__main__':
 
     kpca = DataTransformation(kernel="rbf",gamma=4)
 
-    X, y = make_moons(n_samples=100, random_state=123)
+    X, y = make_moons(n_samples=500, random_state=123)
 
 
+
+    X_pc = X
     X_pc = kpca.transform_data(X)
 
     ppca = PPCA(latent_dimensions=30, max_iterations=50)
