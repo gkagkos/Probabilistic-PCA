@@ -190,7 +190,7 @@ def calculate_for_Multivariate():
     data_reconstructed = pca1.inverse_standarize(data_reconstructed)
     mult_pca_components = pca1.num_components
 
-
+    print("")
     # THIS IS TO FIND THE LATEND VARIABLES USING THE PCA FROM SKLEARN
     # pca = PCA(n_components='mle', svd_solver='full')
     # pca.fit(X_train)
