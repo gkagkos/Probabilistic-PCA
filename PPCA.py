@@ -36,7 +36,9 @@ class PPCA(object):
         # calculate standard deviation
         std = np.std(data, axis=0)
         # divide by standard deviation
-        data /= std
+
+        if np.all(std != 0):
+            data /= std
         return data
 
     def _EM(self):
