@@ -20,13 +20,11 @@ num_pics_MNIST = 10000
 # for the toy datasets
 num_points = 10000  # number of data points
 N = 50  # data dimensionality MUST BE ALWAYS SMALLER THAN LATENT
-
-latent = 10  # latent dimensionality
 max_iterations = 2  # number of maximum iterations
 
 cifar = False
-mnist = False
-multivariate = True
+mnist = True
+multivariate = False
 
 
 def compute_scores(X, n_features):
@@ -64,6 +62,7 @@ def calculate_for_Cifar(num_pics_to_load):
     reduced_data = ppca.transform_data(fitted_data)
     created_data = ppca.inverse_transform(reduced_data)
     error_train = get_relative_error(X_train, created_data, num_pics_to_load)
+    print("The training avg error of the dataset is: {0}".format(np.mean(error_train)))
 
     plt.figure()
     plt.xlabel('Error(%)')
@@ -95,6 +94,7 @@ def calculate_for_Cifar(num_pics_to_load):
     reduced_data = ppca.transform_data(X_test)
     created_data = ppca.inverse_transform(reduced_data)
     error_test = get_relative_error(X_test, created_data, num_pics_to_load)
+    print("The testing avg error of the dataset is: {0}".format(np.mean(error_test)))
 
     plt.figure()
     plt.xlabel('Error(%)')
@@ -117,6 +117,7 @@ def calculate_for_Mnist(num_pics_to_load):
     reduced_data = ppca.transform_data(fitted_data)
     created_data = ppca.inverse_transform(reduced_data)
     error_train = get_relative_error(X_train, created_data, num_pics_to_load)
+    print("The training avg error of the dataset is: {0}".format(np.mean(error_train)))
 
     plt.figure()
     plt.xlabel('Error(%)')
@@ -140,6 +141,7 @@ def calculate_for_Mnist(num_pics_to_load):
     reduced_data = ppca.transform_data(X_test)
     created_data = ppca.inverse_transform(reduced_data)
     error_test = get_relative_error(X_test, created_data, num_pics_to_load)
+    print("The testing avg error of the dataset is: {0}".format(np.mean(error_test)))
 
     plt.figure()
     plt.xlabel('Error(%)')

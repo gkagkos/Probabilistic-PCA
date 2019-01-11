@@ -31,19 +31,12 @@ class PPCA(object):
     def _standarize(self, data):
 
         """ Make the data zero mean and unit variance """
-        if (self.init == False):
-            mean = np.mean(data, axis=0)
-            self.mean = mean
-            data = data - mean
-            # calculate standard deviation
-            std = np.std(data, axis=0)
-            self.std = std
-            # divide by standard deviation
-            data /= std
-            self.init = True
-        else:
-            data = data - self.mean
-            data /= self.std
+        mean = np.mean(data, axis=0)
+        data = data - mean
+        # calculate standard deviation
+        std = np.std(data, axis=0)
+        # divide by standard deviation
+        data /= std
         return data
 
     def _EM(self):
@@ -84,13 +77,7 @@ class PPCA(object):
     #     [data, mean, latent, sigma, N] = [self.data, self.mean, self.Latent, self.sigma, self.Num_points]
     #     print()
     #     [u, s, v] = np.linalg.svd(data - mean)
-    #
-    #
-    #
     #     sigma = 1.0 / (N - latent) * np.sum(s[latent:] ** 2)
-    #
-    #
-    #
     #     self.W = w
     #     print(w.shape)
     #     self.sigma = sigma
