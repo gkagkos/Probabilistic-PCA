@@ -40,7 +40,7 @@ def get_missing_data(data_original):
     for i in range(len(data_original)):
         picked_index = rand.sample(index, round(len(index) * 0.2))
         for j in range(len(picked_index)):
-            data_original[i][picked_index[j]] = 0.0
+            data_original[i][picked_index[j]] = np.inf
 
     return data_original
 

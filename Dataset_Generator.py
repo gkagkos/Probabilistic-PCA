@@ -7,9 +7,10 @@ from sklearn.model_selection import train_test_split
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 mnist_dir = os.path.join(ROOT_DIR, 'data/MNIST/')
+toba_dir = os.path.join(ROOT_DIR,'data/Toba')
 
 
-class toy_dataset(object):
+class datasets(object):
     def __init__(self):
         pass
 
@@ -155,6 +156,26 @@ class toy_dataset(object):
         print("-----------------------------------------")
         return trainingImages, trainingLabels, testImages, testLabels
 
+    def load_Toba(self,path):
+        print("Loading Tobamovirus dataset..")
+        filename = os.path.join(path, 'virus.txt')
+
+        with open(filename) as f:
+            data = f.readlines()
+        # Remove `\n` at the end of each line
+        data = [x.strip() for x in data]
+
+        X_train, X_test, = train_test_split(data, test_size=0.2)
+
+
+        print("-----------------------------------------")
+        print("           Tobamovirus is Loaded")
+        print("-----------------------------------------")
+        return X_train , X_test
+
+
+
+
 # Load MNIST ONLINE. Sometimes gets it gets you http error.
 # def _load_mnist():
 #     '''
@@ -177,7 +198,7 @@ if __name__ == '__main__':
 
 
 
-    trainingImages, trainingLabels, testImages, testLabels = toy_dataset().load_MNIST(mnist_dir)
+    datasets().load_Toba(toba_dir)
 
 
 

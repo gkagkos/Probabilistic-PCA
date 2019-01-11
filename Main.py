@@ -1,4 +1,4 @@
-from Toy_Dataset_Generator import toy_dataset
+from Dataset_Generator import datasets
 from Utils import *
 from PPCA import PPCA
 import random
@@ -10,6 +10,7 @@ from sklearn.model_selection import cross_val_score
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 cifar10_dir = os.path.join(ROOT_DIR, 'data/CIFAR10/')  # Directory of the cifar dataset
 mnist_dir = os.path.join(ROOT_DIR, 'data/MNIST/')
+toba_dir = os.path.join(ROOT_DIR,'data/Toba')
 
 # for CIFAR10
 num_pics_CIFAR10 = 10000  # number of pictures to use for train
@@ -48,7 +49,7 @@ def compute_scores(X, n_features):
 def calculate_for_Cifar(num_pics_to_load):
     plt.ion()
 
-    X_train, y_train, X_test, y_test = toy_dataset().load_CIFAR10(cifar10_dir)
+    X_train, y_train, X_test, y_test = datasets().load_CIFAR10(cifar10_dir)
     X_train = np.reshape(X_train, (X_train.shape[0], -1))
     X_test = np.reshape(X_test, (X_test.shape[0], -1))
     X_train = X_train[:num_pics_to_load, :]  # take only the first num_pics pictures
@@ -105,7 +106,7 @@ def calculate_for_Cifar(num_pics_to_load):
 
 
 def calculate_for_Mnist(num_pics_to_load):
-    X_train, y_train, X_test, y_test = toy_dataset().load_MNIST(mnist_dir)
+    X_train, y_train, X_test, y_test = datasets().load_MNIST(mnist_dir)
     X_train = np.reshape(X_train, (X_train.shape[0], -1))
     X_test = np.reshape(X_test, (X_test.shape[0], -1))
     X_train = X_train[:num_pics_to_load, :]  # take only the first num_pics pictures
@@ -165,7 +166,7 @@ def calculate_for_Mnist(num_pics_to_load):
 def calculate_for_Multivariate():
     plt.ion()
 
-    X_train, X_test = toy_dataset().build_A_toy_dataset(N=N, num_points=num_points)
+    X_train, X_test = datasets().build_A_toy_dataset(N=N, num_points=num_points)
     # print(X_train.shape)
 
     ppca = PPCA(max_iterations=max_iterations)
