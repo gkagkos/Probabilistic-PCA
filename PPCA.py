@@ -97,6 +97,7 @@ class PPCA(object):
 
         latent_data = Minv.dot(np.transpose(W)).dot(np.transpose(data - mean))
         latent_data = np.transpose(latent_data)  # NxL
+
         return latent_data
 
     def inverse_transform(self, data):
@@ -113,9 +114,11 @@ class PPCA(object):
         return created_data
 
     def _get_num_components(self, data, explained_variance=90):
+
         """Using SVD decomposition for the covariance matrix in order to get the number of components
            we accumulate explained_variance of the variance across dimensions and discard the remaining variance
            """
+
         data = self._standarize(data)
         # get the NxN covariance matrix of the data
         cov = np.dot(data.T, data) / (data.shape[0])

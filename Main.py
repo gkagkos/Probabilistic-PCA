@@ -149,6 +149,7 @@ def calculate_for_Mnist(num_pics_to_load):
     plt.title('Error of Reconstructing MNIST Test Set with PPCA(' + str(ppca.num_components) + " components)")
     plt.hist(list(error_test), bins=100, color="#3F5D7D")  # fancy color
     plt.show()
+
     # visualize a sample of reconstructed data images
     created_data = np.reshape(created_data, (created_data.shape[0], 28, 28))
 

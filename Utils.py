@@ -1,6 +1,6 @@
 import os
 import pickle
-
+import random as rand
 import numpy as np
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +32,17 @@ def to_One_Hot(classification):
     hotEncoding[np.arange(len(hotEncoding)), classification] = 1
     return hotEncoding
 
+
+def get_missing_data(data_original):
+
+    """ Return data with missining values replaced by zeros"""
+    index = list(range(0, len(data_original[1])))
+    for i in range(len(data_original)):
+        picked_index = rand.sample(index, round(len(index) * 0.2))
+        for j in range(len(picked_index)):
+            data_original[i][picked_index[j]] = 0.0
+
+    return data_original
 
 if __name__ == "__main__":
     data_folder = os.path.join(ROOT_DIR, 'data')
