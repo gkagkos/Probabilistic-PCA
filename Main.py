@@ -4,7 +4,6 @@ from PPCA import PPCA
 import random
 import os
 import matplotlib.pyplot as plt
-import numpy as np
 from sklearn.decomposition import PCA, FactorAnalysis
 from sklearn.model_selection import cross_val_score
 from PCA import *
@@ -52,7 +51,7 @@ def compute_scores(X, n_features):
 def calculate_for_Cifar(num_pics_to_load):
     plt.ion()
 
-    X_train, y_train, X_test, y_test = toy_dataset()._load_CIFAR10(cifar10_dir)
+    X_train, y_train, X_test, y_test = toy_dataset().load_CIFAR10(cifar10_dir)
 
     X_train = np.reshape(X_train, (X_train.shape[0], -1))
     X_test = np.reshape(X_test, (X_test.shape[0], -1))
@@ -60,18 +59,18 @@ def calculate_for_Cifar(num_pics_to_load):
 
     print(X_train.shape)
 
-    ppca = PPCA(latent_dimensions=latent, max_iterations=max_iterations)
+    ppca = PPCA(max_iterations=max_iterations)
 
     print("=======>Training Phase<=======")
-    fitted_data = ppca._fit(X_train)
-    reduced_data = ppca._transform_data(fitted_data)
-    created_data = ppca._inverse_transform(reduced_data)
+    fitted_data = ppca.fit(X_train)
+    reduced_data = ppca.transform_data(fitted_data)
+    created_data = ppca.inverse_transform(reduced_data)
     error_train = get_relative_error(X_train, created_data, num_pics_to_load)
 
     plt.figure()
     plt.xlabel('Error(%)')
     plt.ylabel('Count')
-    plt.title('Error of Reconstructing CIFAR Train Set with PPCA(' + str(ppca.Latent) + " components)")
+    plt.title('Error of Reconstructing CIFAR Train Set with PPCA(' + str(ppca.num_components) + " components)")
     plt.hist(list(error_train), bins=100, color="#3F5D7D")  # fancy color
     plt.show()
 
@@ -95,47 +94,36 @@ def calculate_for_Cifar(num_pics_to_load):
     #     plt.show()
 
     print("=======>Testing Phase<=======")
-    reduced_data = ppca._transform_data(X_test)
-    created_data = ppca._inverse_transform(reduced_data)
+    reduced_data = ppca.transform_data(X_test)
+    created_data = ppca.inverse_transform(reduced_data)
     error_test = get_relative_error(X_test, created_data, num_pics_to_load)
 
     plt.figure()
     plt.xlabel('Error(%)')
     plt.ylabel('Count')
-    plt.title('Error of Reconstructing CIFAR Test Set with PPCA(' + str(ppca.Latent) + " components)")
+    plt.title('Error of Reconstructing CIFAR Test Set with PPCA(' + str(ppca.num_components) + " components)")
     plt.hist(list(error_test), bins=100, color="#3F5D7D")  # fancy color
     plt.show()
 
 
 def calculate_for_Mnist(num_pics_to_load):
-    X_train, y_train, X_test, y_test = toy_dataset()._load_MNIST(mnist_dir)
+    X_train, y_train, X_test, y_test = toy_dataset().load_MNIST(mnist_dir)
     X_train = np.reshape(X_train, (X_train.shape[0], -1))
     X_test = np.reshape(X_test, (X_test.shape[0], -1))
     X_train = X_train[:num_pics_to_load, :]  # take only the first num_pics pictures
 
-    # THIS IS FROM THE FILE THE OTHER GUY MADE TO FIND THE LATEND DIMENSION USING PCA
-    # IT IS NOT WORKING ON MNIST
-    # pca1 = PCA()
-    # data_std = pca1.fit(X_train)
-    # data_reduced = pca1.transform_data(data_std, None)
-    # data_reconstructed = pca1.inverse_transform(data_reduced, None)
-    # data_reconstructed = pca1.inverse_standarize(data_reconstructed)
-    # mult_pca_components = pca1.num_components
-    #
-    print("The number of components to be used is: ", mult_pca_components)
-
-    ppca = PPCA(latent_dimensions=latent, max_iterations=max_iterations)
+    ppca = PPCA(max_iterations=max_iterations)
 
     print("=======>Training Phase<=======")
-    fitted_data = ppca._fit(X_train)
-    reduced_data = ppca._transform_data(fitted_data)
-    created_data = ppca._inverse_transform(reduced_data)
+    fitted_data = ppca.fit(X_train)
+    reduced_data = ppca.transform_data(fitted_data)
+    created_data = ppca.inverse_transform(reduced_data)
     error_train = get_relative_error(X_train, created_data, num_pics_to_load)
 
     plt.figure()
     plt.xlabel('Error(%)')
     plt.ylabel('Count')
-    plt.title('Error of Reconstructing MNIST Train Set with PPCA(' + str(ppca.Latent) + " components)")
+    plt.title('Error of Reconstructing MNIST Train Set with PPCA(' + str(ppca.num_components) + " components)")
     plt.hist(list(error_train), bins=100, color="#3F5D7D")  # fancy color
     plt.show()
 
@@ -151,14 +139,14 @@ def calculate_for_Mnist(num_pics_to_load):
         plt.show()
 
     print("=======>Testing Phase<=======")
-    reduced_data = ppca._transform_data(X_test)
-    created_data = ppca._inverse_transform(reduced_data)
+    reduced_data = ppca.transform_data(X_test)
+    created_data = ppca.inverse_transform(reduced_data)
     error_test = get_relative_error(X_test, created_data, num_pics_to_load)
 
     plt.figure()
     plt.xlabel('Error(%)')
     plt.ylabel('Count')
-    plt.title('Error of Reconstructing MNIST Test Set with PPCA(' + str(ppca.Latent) + " components)")
+    plt.title('Error of Reconstructing MNIST Test Set with PPCA(' + str(ppca.num_components) + " components)")
     plt.hist(list(error_test), bins=100, color="#3F5D7D")  # fancy color
     plt.show()
     # visualize a sample of reconstructed data images
@@ -176,19 +164,12 @@ def calculate_for_Mnist(num_pics_to_load):
 def calculate_for_Multivariate():
     plt.ion()
 
-    X_train, X_test = toy_dataset()._build_A_toy_dataset(N=N, num_points=num_points)
-    print(X_train.shape)
-
+    X_train, X_test = toy_dataset().build_A_toy_dataset(N=N, num_points=num_points)
+    # print(X_train.shape)
 
     # print("The number of components to be used is: {0} for fa and {1} for pca".format(fa_scores, pca_scores))
     # THIS IS FROM THE FILE THE OTHER GUY MADE TO FIND THE LATEND DIMENSION USING PCA
     # IT IS WORKING
-    pca1 = PCA()
-    data_std = pca1.fit(X_train)
-    data_reduced = pca1.transform_data(data_std, None)
-    data_reconstructed = pca1.inverse_transform(data_reduced, None)
-    data_reconstructed = pca1.inverse_standarize(data_reconstructed)
-    mult_pca_components = pca1.num_components
 
     print("")
     # THIS IS TO FIND THE LATEND VARIABLES USING THE PCA FROM SKLEARN
@@ -196,15 +177,14 @@ def calculate_for_Multivariate():
     # pca.fit(X_train)
     # components = pca.n_components_
 
-    print("The number of components to be used is: ", mult_pca_components)
-    ppca = PPCA(latent_dimensions=5, max_iterations=max_iterations)
+    ppca = PPCA(max_iterations=max_iterations)
 
     print("=======>Training Phase<=======")
-    fitted_data = ppca._fit(X_train)
-    reduced_data = ppca._transform_data(fitted_data)
-    created_data = ppca._inverse_transform(reduced_data)
+    fitted_data = ppca.fit(X_train)
+    reduced_data = ppca.transform_data(fitted_data)
+    created_data = ppca.inverse_transform(reduced_data)
 
-    percentage = (int)(num_points * 0.8)  # get the integer number of points of 0.8% of the whole dataset
+    percentage = int(num_points * 0.8)  # get the integer number of points of 0.8% of the whole dataset
 
     r = range(0, percentage)
     error = get_relative_error(X_train, created_data, percentage + 1)  # +1 cuz it is fucking annoying :)
@@ -213,14 +193,14 @@ def calculate_for_Multivariate():
     plt.bar(r, error, width=1, color="blue")
     plt.xlabel('Data Points')
     plt.ylabel('Error')
-    plt.title('Error of Reconstructing Training Set 1 with PPCA(' + str(ppca.Latent) + " components)")
+    plt.title('Error of Reconstructing Training Set 1 with PPCA(' + str(ppca.num_components) + " components)")
     plt.show()
 
     print("=======>Testing Phase<=======")
-    reduced_data = ppca._transform_data(X_test)
-    created_data = ppca._inverse_transform(reduced_data)
+    reduced_data = ppca.transform_data(X_test)
+    created_data = ppca.inverse_transform(reduced_data)
 
-    percentage = (int)(num_points * 0.2)  # get the integer number of points of the rest 0.2% of the whole dataset
+    percentage = int(num_points * 0.2)  # get the integer number of points of the rest 0.2% of the whole dataset
 
     error = get_relative_error(X_test, created_data, percentage + 1)  # + 1 cuz it is fucking annoying :)
     r = range(0, percentage)
@@ -229,7 +209,7 @@ def calculate_for_Multivariate():
     plt.bar(r, error, width=1, color="blue")
     plt.xlabel('Data Points')
     plt.ylabel('Error(%)')
-    plt.title('Relative Error of Reconstructing Test Set 1 with PPCA(' + str(ppca.Latent) + " components)")
+    plt.title('Relative Error of Reconstructing Test Set 1 with PPCA(' + str(ppca.num_components) + " components)")
     plt.show()
 
 

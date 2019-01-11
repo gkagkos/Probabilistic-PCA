@@ -2,9 +2,7 @@ import os
 import pickle
 
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.spatial import distance
-from sklearn import datasets
 from sklearn.model_selection import train_test_split
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
@@ -15,7 +13,7 @@ class toy_dataset(object):
     def __init__(self):
         pass
 
-    def _build_A_toy_dataset(self, N, num_points):
+    def build_A_toy_dataset(self, N, num_points):
 
         """
             Generate random data from a N dimensional multivariate distribution
@@ -58,7 +56,7 @@ class toy_dataset(object):
 
         return X_train, X_test
 
-    def _load_CIFAR10(self, path):
+    def load_CIFAR10(self, path):
         """
 
         Load CIFAR10
@@ -82,7 +80,7 @@ class toy_dataset(object):
         
         """
 
-        def load_batch(filename):
+        def _load_batch(filename):
             with open(filename, 'rb') as f:
                 datadict = pickle.load(f, encoding='latin1')
                 X = datadict['data']
@@ -99,7 +97,7 @@ class toy_dataset(object):
 
             batch_filename = os.path.join(path, 'data_batch_{}'.format(batch))
             # print(batch_filename)
-            X, Y = load_batch(batch_filename)
+            X, Y = _load_batch(batch_filename)
             x_train.append(X)
             y_train.append(Y)
 
@@ -110,11 +108,11 @@ class toy_dataset(object):
         print("           CIFAR10 is Loaded")
         print("-----------------------------------------")
 
-        X_test, y_test = load_batch(os.path.join(path, 'test_batch'))
+        X_test, y_test = _load_batch(os.path.join(path, 'test_batch'))
 
         return X_train, y_train, X_test, y_test
 
-    def _load_MNIST(self, path):
+    def load_MNIST(self, path):
         print("Loading MNIST...")
         """
             Load CIFAR10
@@ -137,7 +135,7 @@ class toy_dataset(object):
 
         """
 
-        def load_filename(prefix, path):
+        def _load_filename(prefix, path):
             intType = np.dtype('int32').newbyteorder('>')
             nMetaDataBytes = 4 * intType.itemsize
 
@@ -150,8 +148,8 @@ class toy_dataset(object):
 
             return data, labels
 
-        trainingImages, trainingLabels = load_filename("train", path)
-        testImages, testLabels = load_filename("t10k", path)
+        trainingImages, trainingLabels = _load_filename("train", path)
+        testImages, testLabels = _load_filename("t10k", path)
         print("-----------------------------------------")
         print("           MNIST is Loaded")
         print("-----------------------------------------")
@@ -179,7 +177,7 @@ if __name__ == '__main__':
 
 
 
-    trainingImages, trainingLabels, testImages, testLabels = toy_dataset()._load_MNIST(mnist_dir)
+    trainingImages, trainingLabels, testImages, testLabels = toy_dataset().load_MNIST(mnist_dir)
 
 
 
