@@ -6,7 +6,6 @@ import os
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA, FactorAnalysis
 from sklearn.model_selection import cross_val_score
-from PCA import *
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 cifar10_dir = os.path.join(ROOT_DIR, 'data/CIFAR10/')  # Directory of the cifar dataset
@@ -52,7 +51,6 @@ def calculate_for_Cifar(num_pics_to_load):
     plt.ion()
 
     X_train, y_train, X_test, y_test = toy_dataset().load_CIFAR10(cifar10_dir)
-
     X_train = np.reshape(X_train, (X_train.shape[0], -1))
     X_test = np.reshape(X_test, (X_test.shape[0], -1))
     X_train = X_train[:num_pics_to_load, :]  # take only the first num_pics pictures
@@ -166,16 +164,6 @@ def calculate_for_Multivariate():
 
     X_train, X_test = toy_dataset().build_A_toy_dataset(N=N, num_points=num_points)
     # print(X_train.shape)
-
-    # print("The number of components to be used is: {0} for fa and {1} for pca".format(fa_scores, pca_scores))
-    # THIS IS FROM THE FILE THE OTHER GUY MADE TO FIND THE LATEND DIMENSION USING PCA
-    # IT IS WORKING
-
-    print("")
-    # THIS IS TO FIND THE LATEND VARIABLES USING THE PCA FROM SKLEARN
-    # pca = PCA(n_components='mle', svd_solver='full')
-    # pca.fit(X_train)
-    # components = pca.n_components_
 
     ppca = PPCA(max_iterations=max_iterations)
 
