@@ -167,7 +167,6 @@ class datasets(object):
 
         X_train, X_test, = train_test_split(data, test_size=0.2)
 
-
         print("-----------------------------------------")
         print("           Tobamovirus is Loaded")
         print("-----------------------------------------")
