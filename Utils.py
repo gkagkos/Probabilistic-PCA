@@ -54,8 +54,9 @@ def get_missing_data2(data):
             generator = random.randint(1, 101)
             if generator <= 20:
                 data[i][j] = np.NaN
-            print(data[i][j])
+            # print(data[i][j])
 
+    return data
 
 if __name__ == "__main__":
     data_folder = os.path.join(ROOT_DIR, 'data')

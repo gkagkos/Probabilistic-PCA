@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
 import Utils
+import ppca__
+import ppca_withmissingValues
 from PPCA import PPCA
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
@@ -207,6 +209,23 @@ class datasets(object):
 #             data_test.astype(np.float32), target_test.astype(np.float32))
 
 
+def plot(train):
+
+    print(train.shape)
+    for i in range(train.shape[0]):
+        plt.text(train[i, 0], train[i, 1], str(i))
+
+    # min0 = np.min(train[:, 0])
+    # min1 = np.min(train[:, 0])
+    # max0 = np.max(train[:, 1])
+    # max1 = np.max(train[:, 1])
+
+    # plt.axis((min0, max0, min1, max1))
+    plt.axis((-15,15,-15,15))
+
+    plt.show()
+
+
 if __name__ == '__main__':
 
     [train , test] = datasets().load_Toba(toba_dir)
@@ -214,29 +233,31 @@ if __name__ == '__main__':
     print(train.shape)
     print(test.shape)
 
-    train = Utils.get_missing_data2(train)
-
-    print(train)
 
     # pca = PCA(n_components=2)
     # pca.fit(train)
     #
     # train = pca.transform(train)
 
+    train = Utils.get_missing_data(train)
 
-    ppca = PPCA(num_components=2, max_iterations=20)
-    fitted_data = ppca.fit(train)
-    transformed = ppca.transform_data(train)
-    inversed = ppca.inverse_transform(transformed)
 
-    error = Utils.get_relative_error(train,inversed,30)
-    print("Mean error is :", np.mean(error))
-    for i in range(transformed.shape[0]):
-        plt.text(transformed[i, 0], transformed[i, 1], str(i))
+    # pca = PCA(n_components=2)
+    # pca.fit(train)
+    # train = pca.transform(train)
 
-    plt.axis((-4, 4, -4, 4))
+    rob_pca = ppca_withmissingValues.ppca_withmissingValues()
+    rob_pca.fit(train, d=2)
+    # train = rob_pca.transform(train)
+    train1 = rob_pca.transform()
 
-    plt.show()
+    # ppca = ppca__.ppca__()
+    # ppca.fit(train)
+    # train = ppca.transform_data(train, num_components=2)
+
+
+    # plot(train)
+    plot(train1)
 
 
 
