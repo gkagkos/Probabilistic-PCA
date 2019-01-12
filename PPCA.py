@@ -2,12 +2,12 @@ import numpy as np
 from KernelPCA import DataTransformation
 
 class PPCA(object):
-    def __init__(self, sigma=1, max_iterations=20, kernel="linear"):
+    def __init__(self, num_components = None, sigma=1, max_iterations=20, kernel="linear"):
 
         self.sigma = sigma  # std of the noise
         self.max_iterations = max_iterations  # maximum iterations to do
         self.mean = None
-        self.num_components = None # Number of components to be used
+        self.num_components = num_components # Number of components to be used
         self.W = None  # W = projection matrix DxL
         self.kernel = kernel
 
@@ -22,7 +22,9 @@ class PPCA(object):
         self.Num_points = data.shape[0]  # number of data points
         self.Dim = data.shape[1]  # number of dimensions of the data
 
-        self._get_num_components(data)
+        if self.num_components is None:
+            self._get_num_components(data)
+
         self._EM()
 
         return data

@@ -4,6 +4,11 @@ import pickle
 import numpy as np
 from scipy.spatial import distance
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+
+import Utils
+from PPCA import PPCA
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 mnist_dir = os.path.join(ROOT_DIR, 'data/MNIST/')
@@ -160,17 +165,26 @@ class datasets(object):
         print("Loading Tobamovirus dataset..")
         filename = os.path.join(path, 'virus.txt')
 
+        data = []
+        i = 0
         with open(filename) as f:
-            data = f.readlines()
+            for line in f:
+                data.append([])
+                data[i] = [int(n) for n in line.split()]
+                i += 1
+
         # Remove `\n` at the end of each line
-        data = [x.strip() for x in data]
+        # data = [x.strip().split() for x in data]
+
+
+        # data = [int(x) for x in data]
 
         X_train, X_test, = train_test_split(data, test_size=0.2)
 
         print("-----------------------------------------")
         print("           Tobamovirus is Loaded")
         print("-----------------------------------------")
-        return X_train , X_test
+        return np.array(X_train) ,np.array(X_test)
 
 
 
@@ -195,9 +209,32 @@ class datasets(object):
 
 if __name__ == '__main__':
 
+    [train , test] = datasets().load_Toba(toba_dir)
+
+    print(train.shape)
+    print(test.shape)
+
+    train = Utils.get_missing_data(train)
 
 
-    datasets().load_Toba(toba_dir)
+    pca = PCA(n_components=2)
+    pca.fit(train)
+
+    train = pca.transform(train)
+
+
+    # ppca = PPCA(num_components=2, max_iterations=20)
+    # train = ppca.fit(train)
+    # train = ppca.transform_data(train)
+
+    print(train.shape)
+    for i in range(train.shape[0]):
+        plt.text(train[i, 0], train[i, 1], str(i))
+
+    plt.axis((-4, 4, -4, 4))
+
+    plt.show()
+
 
 
 
