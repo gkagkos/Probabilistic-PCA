@@ -46,6 +46,16 @@ def get_missing_data(data_original):
     return data_original
 
 
+def get_missing_data2(data):
+    """ Return data with missining values replaced by NaN"""
+    data = data.astype(float)
+    for i in range(len(data)):
+        for j in range(len(data[0])):
+            generator = random.randint(1, 100)
+            if generator <= 20:
+                data[i][j] = np.NaN
+            print(data[i][j])
+
 
 if __name__ == "__main__":
     data_folder = os.path.join(ROOT_DIR, 'data')
