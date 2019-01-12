@@ -36,11 +36,12 @@ def to_One_Hot(classification):
 def get_missing_data(data_original):
 
     """ Return data with missining values replaced by zeros"""
+    data_original = data_original.astype(float)
     index = list(range(0, len(data_original[1])))
     for i in range(len(data_original)):
         picked_index = rand.sample(index, round(len(index) * 0.2))
         for j in range(len(picked_index)):
-            data_original[i][picked_index[j]] = np.inf
+            data_original[i][picked_index[j]] = np.NaN
 
     return data_original
 
