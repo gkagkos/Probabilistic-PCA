@@ -214,22 +214,25 @@ if __name__ == '__main__':
     print(train.shape)
     print(test.shape)
 
-    train = Utils.get_missing_data(train)
+    train = Utils.generator_data(train)
+
+    print(train)
+
+    # pca = PCA(n_components=2)
+    # pca.fit(train)
+    #
+    # train = pca.transform(train)
 
 
-    pca = PCA(n_components=2)
-    pca.fit(train)
+    ppca = PPCA(num_components=2, max_iterations=20)
+    fitted_data = ppca.fit(train)
+    transformed = ppca.transform_data(train)
+    inversed = ppca.inverse_transform(transformed)
 
-    train = pca.transform(train)
-
-
-    # ppca = PPCA(num_components=2, max_iterations=20)
-    # train = ppca.fit(train)
-    # train = ppca.transform_data(train)
-
-    print(train.shape)
-    for i in range(train.shape[0]):
-        plt.text(train[i, 0], train[i, 1], str(i))
+    error = Utils.get_relative_error(train,inversed,30)
+    print("Mean error is :", np.mean(error))
+    for i in range(transformed.shape[0]):
+        plt.text(transformed[i, 0], transformed[i, 1], str(i))
 
     plt.axis((-4, 4, -4, 4))
 

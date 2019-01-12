@@ -1,5 +1,6 @@
 import os
 import pickle
+import random
 import random as rand
 import numpy as np
 
@@ -34,7 +35,6 @@ def to_One_Hot(classification):
 
 
 def get_missing_data(data_original):
-
     """ Return data with missining values replaced by zeros"""
     index = list(range(0, len(data_original[1])))
     for i in range(len(data_original)):
@@ -43,6 +43,8 @@ def get_missing_data(data_original):
             data_original[i][picked_index[j]] = np.inf
 
     return data_original
+
+
 
 if __name__ == "__main__":
     data_folder = os.path.join(ROOT_DIR, 'data')

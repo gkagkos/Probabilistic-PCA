@@ -24,8 +24,8 @@ N = 50  # data dimensionality MUST BE ALWAYS SMALLER THAN LATENT
 max_iterations = 2  # number of maximum iterations
 
 cifar = False
-mnist = True
-multivariate = False
+mnist = False
+multivariate = True
 
 
 def compute_scores(X, n_features):

@@ -53,16 +53,18 @@ class PPCA(object):
         for i in range(self.max_iterations):
             print("Perform Expectation Maximazation Step Iteration={}".format(i + 1))
             # Expectation Step
-            M = np.linalg.inv(W.T.dot(W) + sigma * np.identity(latent))
-            Xn = M.dot(np.transpose(W)).dot((data - mean).T)
 
-            XnXn = sigma * M + Xn.dot(np.transpose(Xn))
+            Minv = np.linalg.inv(W.T.dot(W) + sigma * np.identity(latent))
+
+            Xn = Minv.dot(np.transpose(W)).dot((data - mean).T)
+
+            XnXn = sigma * Minv + Xn.dot(np.transpose(Xn))
 
             # Maximazation Step
             W_avg = (np.transpose(data - mean).dot(np.transpose(Xn))).dot(np.linalg.inv(XnXn))
 
             sigmaNew = (1 / (self.Num_points * self.Dim)) * \
-                       (np.linalg.norm(data - mean) -
+                       (np.square(np.linalg.norm(data - mean)) -
                         2 * np.trace(np.transpose(Xn).dot(np.transpose(W_avg)).dot((data - mean).T))) + \
                        np.trace(XnXn.dot(np.transpose(W_avg).dot(W_avg)))
 
