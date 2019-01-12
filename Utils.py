@@ -51,7 +51,7 @@ def get_missing_data2(data):
     data = data.astype(float)
     for i in range(len(data)):
         for j in range(len(data[0])):
-            generator = random.randint(1, 100)
+            generator = random.randint(1, 101)
             if generator <= 20:
                 data[i][j] = np.NaN
             print(data[i][j])

@@ -214,7 +214,7 @@ if __name__ == '__main__':
     print(train.shape)
     print(test.shape)
 
-    train = Utils.generator_data(train)
+    train = Utils.get_missing_data2(train)
 
     print(train)
 
