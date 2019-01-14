@@ -1,16 +1,16 @@
 import numpy as np
 from KernelPCA import DataTransformation
 
+
 class PPCA(object):
-    def __init__(self, num_components = None, sigma=1, max_iterations=20, kernel="linear"):
+    def __init__(self, num_components=None, sigma=1, max_iterations=20, kernel="linear"):
 
         self.sigma = sigma  # std of the noise
         self.max_iterations = max_iterations  # maximum iterations to do
         self.mean = None
-        self.num_components = num_components # Number of components to be used
+        self.num_components = num_components  # Number of components to be used
         self.W = None  # W = projection matrix DxL
         self.kernel = kernel
-
 
     def fit(self, data):
         if self.kernel != "linear":
@@ -28,7 +28,6 @@ class PPCA(object):
         self._EM()
 
         return data
-
 
     def _standarize(self, data):
 
@@ -69,6 +68,19 @@ class PPCA(object):
                        np.trace(XnXn.dot(np.transpose(W_avg).dot(W_avg)))
 
             sigmaNew = np.absolute(sigmaNew)
+
+            W = W_avg
+            sigma = sigmaNew
+
+            # Expectation Step
+            # Minv = np.linalg.inv(W.T.dot(W) + sigma * np.identity(latent))
+            # print("M dimensions are {0} \nMean dimensions are {1}\n Data dimensions are {2}".format(Minv.shape,mean.shape,data.shape))
+            # XnMTt = (data - mean).dot(np.transpose(data - mean)).dot(W).dot(Minv)
+            # TnTn = sigma * Minv + Minv.dot(np.transpose(W)).dot(XnMTt).dot(W).dot(Minv)
+            # # Maximization Step
+            # W_avg = XnMTt.dot(TnTn)
+            # sigmaNew = (1 / (self.Num_points * self.Dim)) * np.trace(XnMTt) - 2 * np.trace(
+            #     XnMTt.dot(np.transpose(W))) + np.trace(np.transpose(W).dot(W).dot(TnTn))
 
             W = W_avg
             sigma = sigmaNew

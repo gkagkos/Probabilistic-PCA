@@ -1,5 +1,4 @@
 import os
-import pickle
 import random
 import random as rand
 import numpy as np

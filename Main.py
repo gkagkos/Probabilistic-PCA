@@ -169,7 +169,7 @@ def calculate_for_Multivariate():
     X_train, X_test = datasets().build_A_toy_dataset(N=N, num_points=num_points)
     # print(X_train.shape)
 
-    ppca = PPCA(max_iterations=max_iterations)
+    ppca = PPCA(max_iterations=max_iterations,num_components=2)
 
     print("=======>Training Phase<=======")
     fitted_data = ppca.fit(X_train)
