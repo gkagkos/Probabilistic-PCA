@@ -7,12 +7,14 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
+import MPPCA
 import Utils
+import ppca_withmissingValues
 from PPCA import PPCA
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 mnist_dir = os.path.join(ROOT_DIR, 'data/MNIST/')
-toba_dir = os.path.join(ROOT_DIR,'data/Toba')
+toba_dir = os.path.join(ROOT_DIR, 'data/Toba')
 
 
 class datasets(object):
@@ -161,32 +163,16 @@ class datasets(object):
         print("-----------------------------------------")
         return trainingImages, trainingLabels, testImages, testLabels
 
-    def load_Toba(self,path):
+    def load_Toba(self, path):
         print("Loading Tobamovirus dataset..")
         filename = os.path.join(path, 'virus.txt')
 
-        data = []
-        i = 0
-        with open(filename) as f:
-            for line in f:
-                data.append([])
-                data[i] = [int(n) for n in line.split()]
-                i += 1
-
-        # Remove `\n` at the end of each line
-        # data = [x.strip().split() for x in data]
-
-
-        # data = [int(x) for x in data]
-
-        X_train, X_test, = train_test_split(data, test_size=0.2)
+        data = read_file(filename)
 
         print("-----------------------------------------")
         print("           Tobamovirus is Loaded")
         print("-----------------------------------------")
-        return np.array(X_train) ,np.array(X_test)
-
-
+        return data
 
 
 # Load MNIST ONLINE. Sometimes gets it gets you http error.
@@ -207,37 +193,99 @@ class datasets(object):
 #             data_test.astype(np.float32), target_test.astype(np.float32))
 
 
-if __name__ == '__main__':
+def plot(data):
+    print(data.shape)
+    for i in range(data.shape[0]):
+        plt.text(data[i, 0], data[i, 1], str(i))
 
-    [train , test] = datasets().load_Toba(toba_dir)
+    # min0 = np.min(train[:, 0])
+    # min1 = np.min(train[:, 0])
+    # max0 = np.max(train[:, 1])
+    # max1 = np.max(train[:, 1])
 
-    print(train.shape)
-    print(test.shape)
+    # plt.axis((min0, max0, min1, max1))
+    plt.axis((-5, 6, -5, 6))
 
-    train = Utils.get_missing_data2(train)
+    plt.show()
 
-    print(train)
 
+def plot_clusters(data, indices_of_data):
+    print(data.shape)
+    for i in range(data.shape[0]):
+        plt.text(data[i, 0], data[i, 1], indices_of_data[i])
+
+    # min0 = np.min(train[:, 0])
+    # min1 = np.min(train[:, 0])
+    # max0 = np.max(train[:, 1])
+    # max1 = np.max(train[:, 1])
+
+    # plt.axis((min0, max0, min1, max1))
+    plt.axis((-5, 6, -5, 6))
+
+    plt.show()
+
+
+def read_file(name):
+    data = []
+    i = 0
+    with open(name, "r") as f:
+        for line in f:
+            data.append([])
+            data[i] = [float(n) for n in line.split()]
+            i += 1
+
+    data = np.array(data)
+    return data
+
+
+def run_Mixture(data):
+    num_clusters = 3
+    num_dims = 2
+    niter = 100
+
+    [pi, mu, W, sigma2, clusters] = MPPCA.initialization_kmeans(X=data, p=num_clusters, q=num_dims)
+    [pi, mu, W, sigma2, R, L, sigma2hist] = MPPCA.mppca_gem(data, pi, mu, W, sigma2, niter)
+    predictions = MPPCA.mppca_predict(data, pi, mu, W, sigma2)
+
+    cluster_assignments = predictions.argmax(axis=1)
+    return cluster_assignments
+
+
+def run_ppca(data, isMissingData=False):
+    # sk learn pca
     # pca = PCA(n_components=2)
     # pca.fit(train)
     #
     # train = pca.transform(train)
 
+    # our pca does not work
+    # ppca = PPCA(num_components=2,max_iterations=20)
+    # ppca.fit(train)
+    # train = ppca.transform_data(train)
 
-    ppca = PPCA(num_components=2, max_iterations=20)
-    fitted_data = ppca.fit(train)
-    transformed = ppca.transform_data(train)
-    inversed = ppca.inverse_transform(transformed)
+    if isMissingData:
+        data = Utils.get_missing_data(data)
 
-    error = Utils.get_relative_error(train,inversed,30)
-    print("Mean error is :", np.mean(error))
-    for i in range(transformed.shape[0]):
-        plt.text(transformed[i, 0], transformed[i, 1], str(i))
-
-    plt.axis((-4, 4, -4, 4))
-
-    plt.show()
+    rob_pca = ppca_withmissingValues.ppca_withmissingValues()
+    rob_pca.fit(data, d=2)
+    train_transformed = rob_pca.transform()
+    return train_transformed
 
 
+if __name__ == '__main__':
+    train = datasets().load_Toba(toba_dir)
 
+    print(train.shape)
 
+    assignments = run_Mixture(train)
+
+    indicesofClass0 = np.where(assignments == 0)[0]
+    indicesofClass1 = np.where(assignments == 1)[0]
+    indicesofClass2 = np.where(assignments == 2)[0]
+
+    train_transformed = run_ppca(data=train, isMissingData=False)
+    plot(train_transformed)
+
+    plot_clusters(train_transformed[indicesofClass0], indicesofClass0)
+    plot_clusters(train_transformed[indicesofClass1], indicesofClass1)
+    plot_clusters(train_transformed[indicesofClass2], indicesofClass2)

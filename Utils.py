@@ -35,6 +35,9 @@ def to_One_Hot(classification):
 
 def get_missing_data(data_original):
     """ Return data with missining values replaced by zeros"""
+
+    random.seed(10)
+
     data_original = data_original.astype(float)
     index = list(range(0, len(data_original[1])))
     for i in range(len(data_original)):
@@ -53,7 +56,9 @@ def get_missing_data2(data):
             generator = random.randint(1, 101)
             if generator <= 20:
                 data[i][j] = np.NaN
-            print(data[i][j])
+            # print(data[i][j])
+
+    return data
 
 
 if __name__ == "__main__":

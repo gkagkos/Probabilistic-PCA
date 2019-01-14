@@ -47,6 +47,8 @@ class PPCA(object):
         """Perform Expectation Maximazation Algorithm"""
         [dim, latent, mean, sigma, data] = [self.Dim, self.num_components, self.mean, self.sigma, self.data]
 
+        np.random.seed(0)
+
         W = np.random.rand(dim, latent)
 
         for i in range(self.max_iterations):
