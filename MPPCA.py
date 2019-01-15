@@ -6,7 +6,7 @@
 
 
 import numpy as np
-np.random.seed(1)
+np.random.seed(50)
 
 def initialization_kmeans(X, p, q, variance_level=None):
     """
