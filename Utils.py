@@ -49,6 +49,22 @@ def get_missing_data(data_original):
     return data_original
 
 
+def get_missing_data_test(data_original):
+    """ Return data with missining values replaced by zeros"""
+
+    random.seed(1)
+
+    random_indices = random.sample(range(1, 683), 136)
+
+    data_original = data_original.astype(float)
+    data_original = np.reshape(data_original, (-1))
+    data_original[random_indices] = np.NaN
+    data_original = np.reshape(data_original, (38, -1))
+
+
+    return data_original
+
+
 def get_missing_data2(data):
     """ Return data with missining values replaced by NaN"""
     data = data.astype(float)
