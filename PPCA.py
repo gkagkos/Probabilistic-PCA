@@ -1,5 +1,5 @@
 import numpy as np
-from KernelPCA import DataTransformation
+from KernelPCA import Kernel_PCA
 
 
 class PPCA(object):
@@ -14,7 +14,7 @@ class PPCA(object):
 
     def fit(self, data):
         if self.kernel != "linear":
-            kernel_transformation = DataTransformation(kernel=self.kernel)
+            kernel_transformation = Kernel_PCA(kernel=self.kernel)
             data = kernel_transformation.transform_data(data)
 
         self.data = data  # our original data
@@ -29,7 +29,8 @@ class PPCA(object):
 
         return data
 
-    def _standarize(self, data):
+    @staticmethod
+    def _standarize(data):
 
         """ Make the data zero mean and unit variance """
         mean = np.mean(data, axis=0)
@@ -74,19 +75,6 @@ class PPCA(object):
             W = W_avg
             sigma = sigmaNew
 
-            # Expectation Step
-            # Minv = np.linalg.inv(W.T.dot(W) + sigma * np.identity(latent))
-            # print("M dimensions are {0} \nMean dimensions are {1}\n Data dimensions are {2}".format(Minv.shape,mean.shape,data.shape))
-            # XnMTt = (data - mean).dot(np.transpose(data - mean)).dot(W).dot(Minv)
-            # TnTn = sigma * Minv + Minv.dot(np.transpose(W)).dot(XnMTt).dot(W).dot(Minv)
-            # # Maximization Step
-            # W_avg = XnMTt.dot(TnTn)
-            # sigmaNew = (1 / (self.Num_points * self.Dim)) * np.trace(XnMTt) - 2 * np.trace(
-            #     XnMTt.dot(np.transpose(W))) + np.trace(np.transpose(W).dot(W).dot(TnTn))
-
-            W = W_avg
-            sigma = sigmaNew
-
         self.W = W
         self.sigma = sigma
 
@@ -127,15 +115,19 @@ class PPCA(object):
         M = np.transpose(self.W).dot(self.W) + self.sigma * np.eye(self.num_components)
 
         # create a simulation of the old data after beeing transformed with PCA
-        created_data = self.W.dot(np.linalg.inv((self.W.T).dot(self.W))).dot(M).dot(data.T).T + self.mean
+
+        created_data = self.W.dot(
+            np.linalg.inv(self.W.T.dot(self.W))) \
+                           .dot(M) \
+                           .dot(data.T).T \
+                       + self.mean
 
         return created_data
 
     def _get_num_components(self, data, explained_variance=90):
 
         """Using SVD decomposition for the covariance matrix in order to get the number of components
-           we accumulate explained_variance of the variance across dimensions and discard the remaining variance
-           """
+           we accumulate explained_variance of the variance across dimensions and discard the remaining variance"""
 
         data = self._standarize(data)
         # get the NxN covariance matrix of the data
@@ -149,7 +141,7 @@ class PPCA(object):
         num_components = 0
 
         for i in range(cum_var_exp.size):
-            if (cum_var_exp[i] <= explained_variance):
+            if cum_var_exp[i] <= explained_variance:
                 num_components = num_components + 1
             else:
                 break

@@ -4,7 +4,7 @@ from scipy.linalg import eigh
 import numpy as np
 
 
-class DataTransformation(object):
+class Kernel_PCA(object):
 
     def __init__(self, kernel=None, gamma=None, coef=1, degree=3):
         self.kernel = kernel
@@ -14,7 +14,7 @@ class DataTransformation(object):
 
     def transform_data(self, data):
         if self.kernel == "rbf":
-            data =self.rbf_kernel(data, self.gamma)
+            data = self.rbf_kernel(data, self.gamma)
         elif self.kernel == "poly":
             data = self.polynomial_kernel(data, self.degree, self.gamma, self.coef)
         elif self.kernel == "sigmoid":
@@ -152,63 +152,4 @@ class DataTransformation(object):
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    from sklearn import metrics
-    from sklearn.datasets import make_moons
-    from PPCA import PPCA
-    from sklearn.kernel_approximation import AdditiveChi2Sampler
-
-
-
-    # RBF TEST
-    # sklearn_rbf = metrics.pairwise.rbf_kernel(X)
-    # my_rbf = kpca.transform_data(X)
-    #
-    # result1 = np.allclose(sklearn_rbf, my_rbf)
-    #
-    # assert result1 is True, "rbf implementation is not ok"
-
-    # polynomial test
-    # sklearn_poly = metrics.pairwise.polynomial_kernel(X)
-    # my_poly = kpca.polynomial_kernel(X)
-    #
-    # result2 = np.allclose(sklearn_poly, my_poly)
-    #
-    # assert result2 is True, "polynomial implementation is not ok"
-
-    # sigmoid test
-    # sklearn_sigmoid = metrics.pairwise.sigmoid_kernel(X)
-    # my_sigmoid = kpca.sigmoid_kernel(X)
-    #
-    # result3 = np.allclose(sklearn_sigmoid, my_sigmoid)
-    #
-    # assert result3 is True, "sigmoid implementation is not ok"
-
-    # rbf kernel pca example
-    # X_pc = kpca.rbf_kernel_pca(X, gamma=15, n_components=2)
-
-    kpca = DataTransformation(kernel="rbf",gamma=4)
-
-    X, y = make_moons(n_samples=500, random_state=123)
-
-
-
-    X_pc = X
-    X_pc = kpca.transform_data(X)
-
-    ppca = PPCA(latent_dimensions=30, max_iterations=50)
-
-    ppca._fit(X_pc)
-    reduced_data = ppca._transform_data(X_pc)
-
-    X_pc = reduced_data
-
-    plt.figure(figsize=(8, 6))
-    plt.scatter(X_pc[y == 0, 0], X_pc[y == 0, 1], color='red', alpha=0.5)
-    plt.scatter(X_pc[y == 1, 0], X_pc[y == 1, 1], color='blue', alpha=0.5)
-
-    plt.title('First 2 principal components after RBF Kernel PCA')
-    plt.text(-0.18, 0.18, 'gamma = 15', fontsize=12)
-    plt.xlabel('PC1')
-    plt.ylabel('PC2')
-    plt.show()
+    pass

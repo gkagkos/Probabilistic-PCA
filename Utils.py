@@ -2,6 +2,7 @@ import os
 import random
 import random as rand
 import numpy as np
+import matplotlib.pyplot as plt
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -49,7 +50,7 @@ def get_missing_data(data_original):
 
 
 def get_missing_data_test(data_original):
-    """ Return data with missining values replaced by zeros"""
+    """ Return data with missining values replaced by NaN"""
 
     random.seed(1)
 
@@ -59,7 +60,6 @@ def get_missing_data_test(data_original):
     data_original = np.reshape(data_original, (-1))
     data_original[random_indices] = np.NaN
     data_original = np.reshape(data_original, (38, -1))
-
 
     return data_original
 
@@ -77,6 +77,51 @@ def get_missing_data2(data):
     return data
 
 
+def plot_colored_clusters(data, assignments):
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_title('Three component PPCA mixture model', fontsize=20)
+    targets = [0, 1, 2]
+    colors = ['r', 'g', 'b']
+    for target, color in zip(targets, colors):
+        indicesToKeep = np.where(assignments == target)[0]
+
+        ax.scatter(data[indicesToKeep, 0]
+                   , data[indicesToKeep, 1]
+                   , c=color
+                   , s=50)
+
+    for i in range(data.shape[0]):
+        plt.text(data[i, 0], data[i, 1], str(i + 10))
+
+    plt.axis((-5, 6, -5, 6))
+
+    ax.legend(['Model_0', 'Model_1', 'Model_2'])
+    ax.grid()
+    plt.show()
+
+
+def plot_circles(data, y, title):
+    plt.figure(figsize=(8, 6))
+    plt.scatter(data[y == 0, 0], data[y == 0, 1], color='red', alpha=0.5)
+    plt.scatter(data[y == 1, 0], data[y == 1, 1], color='blue', alpha=0.5)
+
+    plt.title(title)
+    plt.text(-0.18, 0.18, 'gamma = 15', fontsize=12)
+    plt.xlabel('PC1')
+    plt.ylabel('PC2')
+    plt.show()
+
+def plot_clusters(data, indices_of_data):
+    # print(data.shape)
+    for i in range(data.shape[0]):
+        plt.text(data[i, 0], data[i, 1], indices_of_data[i] + 10)
+
+    plt.axis((-5, 6, -5, 6))
+
+    plt.show()
+
 if __name__ == "__main__":
-    data_folder = os.path.join(ROOT_DIR, 'data')
+    pass
+    # data_folder = os.path.join(ROOT_DIR, 'data')
     # print(data_folder)

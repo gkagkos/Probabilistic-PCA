@@ -1,19 +1,8 @@
 import os
 import pickle
-
 import numpy as np
 from scipy.spatial import distance
-from sklearn.datasets import make_circles
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-
-import MPPCA
-import Utils
-import ppca_withmissingValues
-from KernelPCA import DataTransformation
-
-from PPCA import PPCA
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 mnist_dir = os.path.join(ROOT_DIR, 'data/MNIST/')
@@ -170,6 +159,18 @@ class datasets(object):
         print("Loading Tobamovirus dataset..")
         filename = os.path.join(path, 'virus.txt')
 
+        def read_file(name):
+            data = []
+            i = 0
+            with open(name, "r") as f:
+                for line in f:
+                    data.append([])
+                    data[i] = [float(n) for n in line.split()]
+                    i += 1
+
+            data = np.array(data)
+            return data
+
         data = read_file(filename)
 
         print("-----------------------------------------")
@@ -177,35 +178,34 @@ class datasets(object):
         print("-----------------------------------------")
         return data
 
+    def load_cross(self, N, d, p):
+        """
+        N : number of desired points
+        d : space dimension
+        p : proportion of the 1st branch of the cross (0<p<1)
 
-def dataset_cross(N, d, p):
-    """
-    N : number of desired points
-    d : space dimension
-    p : proportion of the 1st branch of the cross (0<p<1)
+        X : dataset
+        v1, v2 : directions of the branches
+        center : center of the cross
+        """
 
-    X : dataset
-    v1, v2 : directions of the branches
-    center : center of the cross
-    """
+        t = np.random.randn(N, 1)
+        v1 = np.random.randn(1, d)
+        v2 = 1.5 * np.random.randn(1, d)
+        center = 5. * np.random.randn(1, d)
 
-    t = np.random.randn(N, 1)
-    v1 = np.random.randn(1, d)
-    v2 = 1.5 * np.random.randn(1, d)
-    center = 5. * np.random.randn(1, d)
+        separation = int(round(N * p))
 
-    separation = int(round(N * p))
+        X = np.zeros((N, d))
+        X[:separation, :] = v1 * t[:separation, :]
+        X[separation:, :] = v2 * t[separation:, :]
+        X += 0.1 * np.random.randn(N, d)
+        X += center
 
-    X = np.zeros((N, d))
-    X[:separation, :] = v1 * t[:separation, :]
-    X[separation:, :] = v2 * t[separation:, :]
-    X += 0.1 * np.random.randn(N, d)
-    X += center
-
-    return X, v1, v2, center
+        return X, v1, v2, center
 
 
-# Load MNIST ONLINE. Sometimes gets it gets you http error.
+# Load MNIST ONLINE. Sometimes it gets you http error.
 # def _load_mnist():
 #     '''
 #     Load the digits dataset
@@ -223,179 +223,7 @@ def dataset_cross(N, d, p):
 #             data_test.astype(np.float32), target_test.astype(np.float32))
 
 
-def plot(data):
-    print(data.shape)
-    for i in range(data.shape[0]):
-        plt.text(data[i, 0], data[i, 1], str(i + 10))
-
-    # min0 = np.min(train[:, 0])
-    # min1 = np.min(train[:, 0])
-    # max0 = np.max(train[:, 1])
-    # max1 = np.max(train[:, 1])
-
-    # plt.axis((min0, max0, min1, max1))
-
-    plt.axis((-10, 15, -10, 15))
-
-    plt.show()
-
-
-def plot_clusters(data, indices_of_data):
-    print(data.shape)
-    for i in range(data.shape[0]):
-        plt.text(data[i, 0], data[i, 1], indices_of_data[i] + 10)
-
-    # min0 = np.min(train[:, 0])
-    # min1 = np.min(train[:, 0])
-    # max0 = np.max(train[:, 1])
-    # max1 = np.max(train[:, 1])
-
-    # plt.axis((min0, max0, min1, max1))
-    plt.axis((-5, 6, -5, 6))
-
-    plt.show()
-
-
-def plot_colored_clusters(data, assignments):
-    fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot(1, 1, 1)
-    ax.set_title('Three component PPCA mixture model', fontsize=20)
-    targets = [0, 1, 2]
-    colors = ['r', 'g', 'b']
-    for target, color in zip(targets, colors):
-        indicesToKeep = np.where(assignments == target)[0]
-
-        ax.scatter(data[indicesToKeep, 0]
-                   , data[indicesToKeep, 1]
-                   , c=color
-                   , s=50)
-
-    for i in range(data.shape[0]):
-        plt.text(data[i, 0], data[i, 1], str(i + 10))
-
-    plt.axis((-5, 6, -5, 6))
-
-    ax.legend(['Model_0', 'Model_1', 'Model_2'])
-    ax.grid()
-    plt.show()
-
-
-def read_file(name):
-    data = []
-    i = 0
-    with open(name, "r") as f:
-        for line in f:
-            data.append([])
-            data[i] = [float(n) for n in line.split()]
-            i += 1
-
-    data = np.array(data)
-    return data
-
-
-def run_Mixture(data):
-    num_clusters = 3
-    num_dims = 2
-    niter = 100
-
-    [pi, mu, W, sigma2, clusters] = MPPCA.initialization_kmeans(X=data, p=num_clusters, q=num_dims)
-    [pi, mu, W, sigma2, R, L, sigma2hist] = MPPCA.mppca_gem(data, pi, mu, W, sigma2, niter)
-    predictions = MPPCA.mppca_predict(data, pi, mu, W, sigma2)
-
-    cluster_assignments = predictions.argmax(axis=1)
-    return cluster_assignments
-
-
-def run_ppca(data, isMissingData=False):
-    # sk learn pca
-
-    # pca = PCA(n_components=2)
-    # train_transformed = pca.fit_transform(data)
-
-    # our pca does not work
-    # ppca = PPCA(num_components=2,max_iterations=20)
-    # ppca.fit(train)
-    # train = ppca.transform_data(train)
-
-    if isMissingData:
-        data = Utils.get_missing_data_test(data)
-
-    rob_pca = ppca_withmissingValues.ppca_withmissingValues()
-    rob_pca.fit(data, d=2)
-    train_transformed = rob_pca.transform()
-
-    # data = np.array(data).T
-    #
-    #
-    # train_transformed = ppca__.ppca__().fit_transform(data)
-    # train_transformed = np.array(train_transformed).T
-
-    return train_transformed
-
-
-def plot_circles(data, y, title):
-    plt.figure(figsize=(8, 6))
-    plt.scatter(data[y == 0, 0], data[y == 0, 1], color='red', alpha=0.5)
-    plt.scatter(data[y == 1, 0], data[y == 1, 1], color='blue', alpha=0.5)
-
-    plt.title(title)
-    plt.text(-0.18, 0.18, 'gamma = 15', fontsize=12)
-    plt.xlabel('PC1')
-    plt.ylabel('PC2')
-    plt.show()
-
-
 if __name__ == '__main__':
-    from sklearn import datasets
-
-    iris = datasets.load_iris()
-    data = iris.data
-    y = iris.target
-
-    plot_circles(data, y, " iris original data")
-
-
-    data, y = make_circles(n_samples=400, factor=.3, noise=.05)
-
-    plot_circles(data, y, " original data")
-
-    kpca_poly = DataTransformation(kernel="poly", gamma=4)
-
-    kpca_poly_transformed = kpca_poly.transform_data(data)
-
-    kpca_rbf = DataTransformation(kernel="rbf", gamma=4)
-
-    kpca_rbf_transformed = kpca_rbf.transform_data(data)
-
-    data_transformed = run_ppca(data=data, isMissingData=False)
-
-    pca = PCA(n_components=2)
-    train_transformed = pca.fit_transform(data)
-    train_back = pca.inverse_transform(train_transformed)
-
-    plot_circles(kpca_poly_transformed, y, " k pca  poly transformed data")
-    plot_circles(kpca_rbf_transformed, y, " k pca  rbftransformed data")
-    plot_circles(data_transformed, y, " probabilsitic pca transformed data")
-
-    plot_circles(train_transformed, y, " pca transformed data")
-
-    plot_circles(train_back, y, " pca inversed transformed data")
-
-    # train = datasets().load_Toba(toba_dir)
-    #
-    # print(train.shape)
-    #
-    # assignments = run_Mixture(train)
-    #
-    # indicesofClass0 = np.where(assignments == 0)[0]
-    # indicesofClass1 = np.where(assignments == 1)[0]
-    # indicesofClass2 = np.where(assignments == 2)[0]
-    #
-    # train_transformed = run_ppca(data=train, isMissingData=False)
-    # plot(train_transformed)
-    #
-    # plot_colored_clusters(train_transformed, assignments)
-    #
-    # plot_clusters(train_transformed[indicesofClass0], indicesofClass0)
-    # plot_clusters(train_transformed[indicesofClass1], indicesofClass1)
-    # plot_clusters(train_transformed[indicesofClass2], indicesofClass2)
+    pass
+    # data, y = make_circles(n_samples=400, factor=.3, noise=.05)
+    # print(data.shape)
